@@ -1,0 +1,4 @@
+1. Write a better log module.
+2. Add a thread pool.
+3. Fix CGI failed to get parameter.
+

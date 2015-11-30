@@ -1,0 +1,19 @@
+project (dinner C)
+cmake_minimum_required (VERSION 2.6)
+
+set (CMAKE_C_COMPLIER "gcc")
+set (CMAKE_C_FLAGS "-std=gnu99 -Wall -lpthread")
+set (CMAKE_C_FLAGS_DEBUG "-g3")
+set (CMAKE_C_FLAGS_RELEASE "-O3")
+set (EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+set (LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+
+include_directories (${PROJECT_SOURCE_DIR}/src)
+add_subdirectory (${PROJECT_SOURCE_DIR}/src)
+
+set (
+  BINARYS
+  ${PROJECT_SOURCE_DIR}/bin/dinner
+)
+install (PROGRAMS ${BINARYS} DESTINATION /usr/bin)
+

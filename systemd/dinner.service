@@ -1,0 +1,20 @@
+# dinner - A lightweight web server
+
+[Unit]
+Description=A lightweight web server
+Documentation=https://github.com/Arondight/dinner
+
+[Service]
+Type=forking
+# Here you need to replace the parameter into yours {
+#ExecStart=/usr/bin/dinner -d -p <port> -r <path>
+ExecStart=/usr/bin/dinner -d
+# }
+ExecStop=/bin/kill -TERM $MAINPID
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+WantedBy=graphical.target
+
