@@ -34,6 +34,7 @@
 typedef DN_SayMode_t DN_LogMode_t;
 
 #define DN_LOGMODE(p) (DN_SayMode (p))
+#define DN_REGETLOGMODE(p) (DN_GetSayMode (p))
 
 #if DN_DEBUG_LOG
   #define DN_LOG(m,t,f,...)   \

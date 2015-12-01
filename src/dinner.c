@@ -36,6 +36,7 @@
 #include "dn_event.h"
 #include "dn_io.h"
 #include "dn_log.h"
+#include "dn_daemonize.h"
 #include "dn_assert.h"
 #include "dn_config.h"
 
@@ -57,6 +58,7 @@ usage (void)
       "Usage:",
       "  --port, -p\tset port",
       "  --workdir, -r\tset work directory",
+      "  --daemon, -d\twork as daemon",
       "  --help, -h\tshow this help",
       NULL  /* Last item must be NULL */
     };
@@ -381,18 +383,20 @@ main (const int argc, const char * const * argv)
   char path[MAXPATHLEN + 1];
   char **cmdarg;
   int specPath;
+  int runAsDaemon;
   int listenfd;
   int opt;
   int dir;
   int len;
   uint16_t port;
-  const char optstr[] = "p:r:h";
+  const char optstr[] = "p:r:dh";
   const struct option opts[] =
     {
-      { "port", required_argument, NULL, 'p' },
-      { "workdir", required_argument, NULL, 'r' },
-      { "help", no_argument, NULL, 'h' },
-      { NULL, NULL, NULL, NULL }  /* Last line */
+      { "port", required_argument, 0, 'p' },
+      { "workdir", required_argument, 0, 'r' },
+      { "daemon", no_argument, 0, 'd' },
+      { "help", no_argument, 0, 'h' },
+      { 0, 0, 0, 0 }  /* Last line */
     };
 
   DN_LOGMODE (&mode);
@@ -409,6 +413,7 @@ main (const int argc, const char * const * argv)
   cmdarg = (char **)argv;
   port = DN_DEFAULT_PORT;
   specPath = 0;
+  runAsDaemon = 0;
 
   /* TODO: Get options */
   while (-1 != (opt = getopt_long (argc, cmdarg, optstr, opts, NULL)))
@@ -424,6 +429,10 @@ main (const int argc, const char * const * argv)
           strncat (path, optarg, MAXPATHLEN);
           break;
 
+        case 'd':
+          runAsDaemon = 1;
+          break;
+
         case 'h':
           if (-1 == usage ())
             {
@@ -433,6 +442,19 @@ main (const int argc, const char * const * argv)
           exit (0);
         }
     }
+
+  /* Daemonize if necessary */
+  if (runAsDaemon)
+    {
+      DN_LOG (mode, MSG_I, "daemonizing dinner.\n");
+      if (-1 == DN_Daemonize (NULL))
+        {
+          DN_LOG (mode, MSG_E, "DN_Daemonize failed.\n");
+          exit (1);
+        }
+    }
+
+  DN_REGETLOGMODE (&mode);
 
   /* Change base directory */
   if (!specPath)

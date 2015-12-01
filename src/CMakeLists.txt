@@ -3,6 +3,7 @@ add_executable (
   dinner.c
   dn_buffer.c
   dn_cgi.c
+  dn_daemonize.c
   dn_event.c
   dn_file.c
   dn_io.c

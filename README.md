@@ -38,7 +38,8 @@ Read [systemd/README.txt][ID_SYSTEMD_README_TXT] for configure.
 + [Glibc](https://www.gnu.org/software/libc) >= 2.3.2
 + [GCC](https://gcc.gnu.org) >= 3.3
 + [CMake](https://cmake.org) >= 2.6
-+ [Perl][ID_Perl] and [CGI][ID_CGI] (both not necessary but recommended)
++ [Perl][ID_Perl] >= 5.10 and [CGI][ID_CGI] >= 4.08
+  (both not necessary but recommended)
 
 [ID_Perl]: https://www.perl.org
 [ID_CGI]: https://metacpan.org/pod/distribution/CGI/lib/CGI.pod

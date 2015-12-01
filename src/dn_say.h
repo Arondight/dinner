@@ -33,6 +33,8 @@ typedef enum
   MSG_E,
 } DN_SayLevel_t;
 
+/* Get write mode for current process */
+int DN_GetSayMode (DN_SayMode_t * const mode);
 /* Get write mode */
 int DN_SayMode (DN_SayMode_t * const mode);
 /* Write line to stream */

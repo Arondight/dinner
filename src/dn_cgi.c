@@ -65,6 +65,7 @@ DN_ExecCGI (const int fd, DN_CGIInfo_t * const info, DN_IOEvent_t * const ioev)
   DN_ASSERT_RETURN (info->args, "info->args is NULL.\n", -1);
 
   contentLen = 0;
+  str = NULL;
   memset (envRqst, 0, envMaxLen);
   memset (cgiIn, 0, sizeof (cgiIn));
   memset (cgiOut, 0, sizeof (cgiOut));

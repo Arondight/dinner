@@ -48,7 +48,7 @@ DN_DaemonSetMask (void)
 int
 DN_DaemonChroot (void)
 {
-  const char * const rootdir = "/";
+  const char rootdir[] = "/";
 
   if (chdir (rootdir))
     {
@@ -137,14 +137,15 @@ DN_DaemonCloseFD (void)
   int fd = 0;
   while (fd < (int)(RLIM_INFINITY == limit.rlim_max ? 1024 : limit.rlim_max))
     {
-      close (fd++);
+      close (fd);
+      ++fd;
     }
 
   return DN_DAEMONIZE_STATUS_OK;
 }
 
 /* ========================================================================== *
- * DN_DaemonReopenFD stdin, stdout and stderr to /dev/null
+ * Reopen stdin, stdout and stderr to /dev/null
  * Invoke this after DN_DaemonCloseFD
  * ========================================================================== */
 int
@@ -193,6 +194,6 @@ DN_Daemonize (const char * const ident)
   status |= DN_DaemonReopenFD ();
   status |= DN_DaemonInitLog (ident); /* NULL is okay here, no need to check */
 
-  return DN_DAEMONIZE_STATUS_OK & status ? -1 : 1;
+  return DN_DAEMONIZE_STATUS_ERROR & status ? -1 : 1;
 }
 

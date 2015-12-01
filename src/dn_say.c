@@ -55,7 +55,7 @@ DN_GetSayMode (DN_SayMode_t * const mode)
   char pid[1 << 10];
   int index;
   int size, len;
-  const int fds[] = {STDERR_FILENO, STDOUT_FILENO, STDERR_FILENO};
+  const int fds[] = { STDERR_FILENO, STDOUT_FILENO, STDERR_FILENO };
   const char root[] = "/proc/";
   const char null[] = "/dev/null";
 
@@ -100,7 +100,7 @@ DN_GetSayMode (DN_SayMode_t * const mode)
         {
           /* If any file descriptor of 0, 1, 2 point to /dev/null,
            * treat this as a daemon, only invoke syslog to write line */
-          *mode &= ~MODE_FILE;
+          *mode &= ~MODE_OUT;
           return 1;
         }
     }
