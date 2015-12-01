@@ -54,6 +54,7 @@ DN_ExecCGI (const int fd, DN_CGIInfo_t * const info, DN_IOEvent_t * const ioev)
   const char contentLenStr[] = "Content-Length: ";
   /* } */
   const int contentLenStrLen = strlen (contentLenStr);
+  const int envRqstLen = 1 << 5;
   const int envMaxLen = 1 << 14;
 
   DN_LOGMODE (&mode);
@@ -66,7 +67,7 @@ DN_ExecCGI (const int fd, DN_CGIInfo_t * const info, DN_IOEvent_t * const ioev)
 
   contentLen = 0;
   str = NULL;
-  memset (envRqst, 0, envMaxLen);
+  memset (envRqst, 0, envRqstLen);
   memset (cgiIn, 0, sizeof (cgiIn));
   memset (cgiOut, 0, sizeof (cgiOut));
 
@@ -80,7 +81,7 @@ DN_ExecCGI (const int fd, DN_CGIInfo_t * const info, DN_IOEvent_t * const ioev)
           ret = 0;
           goto FINISH;
         }
-      strncpy (envRqst, "REQUEST_METHOD=GET", envMaxLen);
+      strncpy (envRqst, "REQUEST_METHOD=GET", envRqstLen);
       break;
 
     case DN_RequestType_POST:
@@ -100,7 +101,7 @@ DN_ExecCGI (const int fd, DN_CGIInfo_t * const info, DN_IOEvent_t * const ioev)
         {
           str += contentLenStrLen;
         }
-      strncpy (envRqst, "REQUEST_METHOD=POST", envMaxLen);
+      strncpy (envRqst, "REQUEST_METHOD=POST", envRqstLen);
       break;
 
     case DN_RequestType_UNKOWN:

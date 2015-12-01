@@ -8,7 +8,7 @@ Documentation=https://github.com/Arondight/dinner
 Type=forking
 # Here you need to replace the parameter into yours {
 #ExecStart=/usr/bin/dinner -d -p <port> -r <path>
-ExecStart=/usr/bin/dinner -d
+ExecStart=/usr/bin/dinner -d -p 8080 -r /path/to/work/dir
 # }
 ExecStop=/bin/kill -TERM $MAINPID
 ExecReload=/bin/kill -HUP $MAINPID
