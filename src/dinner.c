@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <pthread.h>
+#include <getopt.h>
 #include <errno.h>
 #include <arpa/inet.h>
 #include <sys/epoll.h>
@@ -41,6 +42,32 @@
 static DN_LogMode_t mode;
 static sigset_t mask;
 static int epfd;
+
+/* ========================================================================== *
+ * Show usage
+ * ========================================================================== */
+int
+usage (void)
+{
+  int line;
+  const char * const content[] =
+    {
+      "This is dinner, version "DN_VERSION" .",
+      "",
+      "Usage:",
+      "  --port, -p\tset port",
+      "  --workdir, -r\tset work directory",
+      "  --help, -h\tshow this help",
+      NULL  /* Last item must be NULL */
+    };
+
+  for (line = 0; content[line]; ++line)
+    {
+      puts (content[line]);
+    }
+
+  return 1;
+}
 
 /* ========================================================================== *
  * Bind a signal to a handler
@@ -352,25 +379,68 @@ int
 main (const int argc, const char * const * argv)
 {
   char path[MAXPATHLEN + 1];
+  char **cmdarg;
+  int specPath;
   int listenfd;
+  int opt;
   int dir;
   int len;
   uint16_t port;
+  const char optstr[] = "p:r:h";
+  const struct option opts[] =
+    {
+      { "port", required_argument, NULL, 'p' },
+      { "workdir", required_argument, NULL, 'r' },
+      { "help", no_argument, NULL, 'h' },
+      { NULL, NULL, NULL, NULL }  /* Last line */
+    };
 
   DN_LOGMODE (&mode);
 
-  /* TODO: Get options */
-
-  /* Change base directory */
+  /* Get current path */
   if (!getcwd (path, MAXPATHLEN - strlen (DN_DEFAULT_WEBROOT) - 1))
     {
       DN_LOG (mode, MSG_E, "getcwd failed: %s.\n", strerror (errno));
       return -1;
     }
-
   len = strlen (path);
   strncat (path, "/", MAXPATHLEN);
-  strncat (path, DN_DEFAULT_WEBROOT, MAXPATHLEN);
+
+  cmdarg = (char **)argv;
+  port = DN_DEFAULT_PORT;
+  specPath = 0;
+
+  /* TODO: Get options */
+  while (-1 != (opt = getopt_long (argc, cmdarg, optstr, opts, NULL)))
+    {
+      switch (opt)
+        {
+        case 'p':
+          port = atoi (optarg);
+          break;
+
+        case 'r':
+          specPath = 1;
+          strncat (path, optarg, MAXPATHLEN);
+          break;
+
+        case 'h':
+          if (-1 == usage ())
+            {
+              DN_LOG (mode, MSG_E, "usage failed.\n");
+              exit (1);
+            }
+          exit (0);
+        }
+    }
+
+  /* Change base directory */
+  if (!specPath)
+    {
+      strncat (path, DN_DEFAULT_WEBROOT, MAXPATHLEN);
+    }
+
+  DN_LOG (mode, MSG_I, "trying work directory: \"%s\".\n", path);
 
   if (-1 == isdir (path, &dir))
     {
@@ -380,6 +450,7 @@ main (const int argc, const char * const * argv)
 
   if (!dir)
     {
+      DN_LOG (mode, MSG_W, "path is unreachable \"%s\".\n", path);
       path[len] = 0;
     }
 
@@ -389,10 +460,7 @@ main (const int argc, const char * const * argv)
       return -1;
     }
 
-  DN_LOG (mode, MSG_I, "change to work directory: %s\n", path);
-
-  /* Set port */
-  port = DN_DEFAULT_PORT;
+  DN_LOG (mode, MSG_I, "change work directory: \"%s\".\n", path);
 
   if (startup (&listenfd, &port) < 1)
     {

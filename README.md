@@ -7,7 +7,7 @@ dinner - A lightweight web server
 This is a lightweight web server based on epoll and a simple [EDA][ID_EDA]
 (event-driven architecture).
 
-[ID_EDA]: https://en.wikipedia.org/wiki/Event-driven_architecturei "Learn more about EDA"
+[ID_EDA]: https://en.wikipedia.org/wiki/Event-driven_architecture "Learn more about EDA"
 
 # BUILD
 
@@ -20,7 +20,7 @@ cd dinner
 For a test, you can run `dinner` after build like:
 
 ```shell
-./bin/dinner
+./bin/dinner -p 8080 -r htdocs
 ```
 
 Then visit `http://127.0.0.1:8080` in your web browser.

@@ -17,7 +17,7 @@ print hr;
 @rows = th ['Key', 'Value'];
 push @rows, td [$_, param $_]
   for sort &param;
-print table {-border=>undef, -width=>'25%'},
+print table {-border=>undef, -width=>'50%'},
             caption b 'Parameters for CGI are:',
             Tr \@rows;
 
@@ -25,10 +25,9 @@ print hr;
 @rows = th ['Variables', 'Value'];
 push @rows, td [$_, $ENV{$_}]
   for sort keys %ENV;
-print table {-border=>undef, -width=>'25%'},
+print table {-border=>undef, -width=>'50%'},
             caption b 'Environment for CGI are:',
             Tr \@rows;
-
 
 print end_html;
 
