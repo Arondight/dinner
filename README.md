@@ -25,9 +25,12 @@ For a test, you can run `dinner` after build like:
 
 Then visit `http://127.0.0.1:8080` in your web browser.
 
+If you want to test [CGI][ID_CGI_WIKI], visit `http://127.0.0.1:8080/test.html`.
+
 Read [systemd/README.txt][ID_SYSTEMD_README_TXT] for configure.
 
 [ID_SYSTEMD_README_TXT]: systemd/README.txt "Read systemd/README.txt"
+[ID_CGI_WIKI]: https://en.wikipedia.org/wiki/Common_Gateway_Interface "Learn more about CGI"
 
 # DEPENDENCIES
 

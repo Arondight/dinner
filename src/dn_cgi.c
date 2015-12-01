@@ -41,7 +41,9 @@ DN_ExecCGI (const int fd, DN_CGIInfo_t * const info, DN_IOEvent_t * const ioev)
   DN_LogMode_t mode;
   int cgiIn[2];
   int cgiOut[2];
-  char env[1 << 14];
+  char envRqst[1 << 5];
+  char envQueryStr[1 << 14];
+  char envContentLen[1 << 14];
   char *str;
   pid_t pid;
   int status;
@@ -63,7 +65,9 @@ DN_ExecCGI (const int fd, DN_CGIInfo_t * const info, DN_IOEvent_t * const ioev)
   DN_ASSERT_RETURN (info->args, "info->args is NULL.\n", -1);
 
   contentLen = 0;
-  memset (env, 0, envMaxLen);
+  memset (envRqst, 0, envMaxLen);
+  memset (cgiIn, 0, sizeof (cgiIn));
+  memset (cgiOut, 0, sizeof (cgiOut));
 
   /* Check request type */
   switch (info->request)
@@ -75,7 +79,7 @@ DN_ExecCGI (const int fd, DN_CGIInfo_t * const info, DN_IOEvent_t * const ioev)
           ret = 0;
           goto FINISH;
         }
-      strncpy (env, "REQUEST_METHOD=GET", envMaxLen);
+      strncpy (envRqst, "REQUEST_METHOD=GET", envMaxLen);
       break;
 
     case DN_RequestType_POST:
@@ -95,7 +99,7 @@ DN_ExecCGI (const int fd, DN_CGIInfo_t * const info, DN_IOEvent_t * const ioev)
         {
           str += contentLenStrLen;
         }
-      strncpy (env, "REQUEST_METHOD=POST", envMaxLen);
+      strncpy (envRqst, "REQUEST_METHOD=POST", envMaxLen);
       break;
 
     case DN_RequestType_UNKOWN:
@@ -174,17 +178,18 @@ DN_ExecCGI (const int fd, DN_CGIInfo_t * const info, DN_IOEvent_t * const ioev)
       close (cgiOut[0]);
       close (cgiOut[1]);
 
-      putenv (env);
+      putenv (envRqst);
 
       if (DN_RequestType_GET == info->request)
         {
-          snprintf (env, envMaxLen, "QUERY_STRING=%s", info->args);
+          snprintf (envQueryStr, envMaxLen, "QUERY_STRING=%s", info->args);
+          putenv (envQueryStr);
         }
       else
         {
-          snprintf (env, envMaxLen, "CONTENT_LENGTH=%d", contentLen);
+          snprintf (envContentLen, envMaxLen, "CONTENT_LENGTH=%d", contentLen);
+          putenv (envContentLen);
         }
-      putenv (env);
 
       execl (info->path, info->path, NULL);
     }
@@ -255,7 +260,6 @@ DN_ExecCGI (const int fd, DN_CGIInfo_t * const info, DN_IOEvent_t * const ioev)
               return 0;
             }
         }
-
     }
 
   /* Write output of CGI to socket buffer */
@@ -276,12 +280,18 @@ DN_ExecCGI (const int fd, DN_CGIInfo_t * const info, DN_IOEvent_t * const ioev)
         }
     }
 
-  close (cgiOut[0]);
-  close (cgiIn[1]);
-
   waitpid (pid, &status, 0);
 
 FINISH:
+  if (cgiOut[0])
+    {
+      close (cgiOut[0]);
+    }
+  if (cgiIn[1])
+    {
+      close (cgiIn[1]);
+    }
+
   if (str)
     {
       free (str);

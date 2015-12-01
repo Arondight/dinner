@@ -15,8 +15,8 @@ print header ('text/html'),
 
 print hr;
 @rows = th ['Key', 'Value'];
-push @rows, td [$_, param $_]
-  for sort &param;
+push @rows, td [$_, multi_param $_]
+  for sort +multi_param;
 print table {-border=>undef, -width=>'50%'},
             caption b 'Parameters for CGI are:',
             Tr \@rows;
@@ -29,7 +29,8 @@ print table {-border=>undef, -width=>'50%'},
             caption b 'Environment for CGI are:',
             Tr \@rows;
 
-print end_html;
+print hr,
+      end_html;
 
 1;
 
