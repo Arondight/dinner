@@ -454,7 +454,7 @@ main (const int argc, const char * const * argv)
         }
     }
 
-  DN_REGETLOGMODE (&mode);
+  DN_TRUELOGMODE (&mode);
 
   /* Change base directory */
   if (!specPath)

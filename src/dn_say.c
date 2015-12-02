@@ -38,6 +38,8 @@
 #define DN_THREADSAFE (DN_THREADSAFE_SAY)
 /* } */
 
+static DN_SayMode_t oneMode = MODE_UNKNOWN;
+
 /* ========================================================================== *
  * Get write mode for current process
  * ========================================================================== *
@@ -105,6 +107,8 @@ DN_GetSayMode (DN_SayMode_t * const mode)
         }
     }
 
+  oneMode = *mode;
+
   return 1;
 }
 
@@ -114,7 +118,6 @@ DN_GetSayMode (DN_SayMode_t * const mode)
 int
 DN_SayMode (DN_SayMode_t * const mode)
 {
-  static DN_SayMode_t oneMode = MODE_UNKNOWN;
   static int hasSet = 0;
   int status;
 
