@@ -5,11 +5,15 @@
 </head>
 
 <body>
-  <h2>This is test page for CGI.</h2>
+  <h2>This is test page for CGI</h2>
+  <hr />
+  <p>
   <form action="test.cgi" method="post">For POST method
     <input type="text" name="textbox">
     <input type="submit" value="POST">
   </form>
+  </p>
+  <hr />
   <p>
   For GET method
   <input type=button value="GET"
@@ -21,6 +25,7 @@
   <input type=button value="GET"
          onclick="window.location.href='test.cgi?'">
   </p>
+  <hr />
 </body>
 </html>
 

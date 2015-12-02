@@ -238,22 +238,22 @@ startup (int * const fd, uint16_t * const port)
 
   on = 1;
 
-	if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof (on)) != 0)
-	  {
+  if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof (on)) != 0)
+    {
       DN_LOG (mode, MSG_E, "setsockopt failed: %s.\n", strerror (errno));
       return -1;
-	  }
+    }
 
   memset (&addr, 0, addrLen);
-	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = htonl (INADDR_ANY);
-	addr.sin_port = port ? htons(*port) : 0;
+  addr.sin_family = AF_INET;
+  addr.sin_addr.s_addr = htonl (INADDR_ANY);
+  addr.sin_port = port ? htons(*port) : 0;
 
-	if (-1 == bind (sockfd, (struct sockaddr *)&addr, addrLen))
-	  {
+  if (-1 == bind (sockfd, (struct sockaddr *)&addr, addrLen))
+    {
       DN_LOG (mode, MSG_E, "bind failed: %s.\n", strerror (errno));
       return -1;
-	  }
+    }
 
   if (!addr.sin_port)
     {
@@ -273,11 +273,11 @@ startup (int * const fd, uint16_t * const port)
        * } */
     }
 
-	if (-1 == listen (sockfd, 5))
-	  {
+  if (-1 == listen (sockfd, 5))
+    {
       DN_LOG (mode, MSG_E, "listen failed: %s.\n", strerror (errno));
       return -1;
-	  }
+    }
 
   *fd = sockfd;
   *port = ntohs (addr.sin_port);
