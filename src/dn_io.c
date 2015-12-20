@@ -47,7 +47,7 @@ DN_NoBlock (const int fd)
 
   DN_LOGMODE (&mode);
 
-  DN_ASSERT_RETURN (fd > 0, "fd is illegal.\n", -1);
+  DN_ASSERT_RETURN (fd > -1, "fd is illegal.\n", -1);
 
   if (-1 == (flags = fcntl (fd, F_GETFL, 0)))
     {

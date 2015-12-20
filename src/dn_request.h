@@ -33,8 +33,7 @@ int DN_ErrRequest (const int fd);
 /* Discard every thiDN_IOEvent_t *ioev, ng of a request */
 int DN_DiscardRequest (const int fd);
 /* Accept a request */
-int DN_AcceptRequest (const int epfd, const int fd, const int events,
-                      DN_IOEvent_t * const ioev, void const * arg);
+int DN_AcceptRequest (const DN_IOEventHandlerArgs_t args);
 
 #endif
 

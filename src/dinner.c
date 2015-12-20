@@ -79,7 +79,9 @@ actionBinding (const int signo, void (* const handler) (int))
 {
   struct sigaction action;
 
-  action.sa_handler = handler;
+  DN_ASSERT_RETURN (signo > -1, "signo is illegal.\n", -1);
+
+  action.sa_handler = handler;    /* NULL is ok here */
   sigemptyset (&action.sa_mask);
   sigaddset (&action.sa_mask, signo);
   action.sa_flags = 0;
@@ -268,7 +270,7 @@ startup (int * const fd, uint16_t * const port)
   if (-1 == DN_NoBlock (sockfd))
     {
       DN_LOG (mode, MSG_E, "DN_NoBlock failed.\n");
-      /* FIXME: Determine what should to do here { *
+      /* XXX: Determine what should to do here { *
       return -1;
        * } */
     }
@@ -298,7 +300,7 @@ eventloop (const int listenfd)
   pthread_t tid;
   int fds;
   int index, len;
-  /* FIXME: Should we handle SIGKILL here ? { */
+  /* XXX: Should we handle SIGKILL here ? { */
   const int sigs[] = { SIGHUP, SIGTERM, SIGINT, };
   /* } */
 

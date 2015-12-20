@@ -165,7 +165,7 @@ DN_DestoryAllEvent (DN_IOEvent_t * const ioevs)
         }
     }
 
-  /* FIXME: return -1 or 0 if failed? { */
+  /* XXX: return -1 or 0 if failed? { */
   return error ? 0 : 1;
   /* } */
 }
@@ -201,7 +201,7 @@ DN_AddEvent (const int epfd, const int events, DN_IOEvent_t * const ioev)
   DN_LOGMODE (&mode);
 
   DN_ASSERT_RETURN (ioev, "ioev is NULL.\n", -1);
-  DN_ASSERT_RETURN (epfd > 0, "epfd is illegal.\n", -1);
+  DN_ASSERT_RETURN (epfd > -1, "epfd is illegal.\n", -1);
 
   ev.data.ptr = ioev;
   ev.events = ioev->events = events;
@@ -231,7 +231,7 @@ DN_DelEvent (const int epfd, DN_IOEvent_t * const ioev)
   DN_LOGMODE (&mode);
 
   DN_ASSERT_RETURN (ioev, "ioev is NULL.\n", -1);
-  DN_ASSERT_RETURN (epfd > 0, "epfd is illegal.\n", -1);
+  DN_ASSERT_RETURN (epfd > -1, "epfd is illegal.\n", -1);
 
   ev.data.ptr = ioev;
 
@@ -276,7 +276,7 @@ DN_DelAllEvent (const int epfd, DN_IOEvent_t * const ioevs)
         }
     }
 
-  /* FIXME: return -1 or 0 if failed? { */
+  /* XXX: return -1 or 0 if failed? { */
   return error ? 0 : 1;
   /* } */
 }
@@ -285,16 +285,21 @@ DN_DelAllEvent (const int epfd, DN_IOEvent_t * const ioevs)
  * return 0 for limit conns
  * ========================================================================== */
 int
-DN_AcceptEvent (const int epfd, const int fd, const int events,
-                DN_IOEvent_t * const ioev, DN_IOEvent_t * ioevs)
+DN_AcceptEvent (const DN_IOEventHandlerArgs_t args)
 {
+  DN_IOEvent_t *ioev, *ioevs;
   struct sockaddr_in addr;
   socklen_t addrLen;
   DN_LogMode_t mode;
-  int evfd;
+  int epfd, fd, evfd;
   int index;
 
   DN_LOGMODE (&mode);
+
+  ioevs = (DN_IOEvent_t *)args.arg;
+  ioev = args.ioev;
+  epfd =  args.epfd;
+  fd = args.fd;
 
   DN_ASSERT_RETURN (ioev, "ioev is NULL.\n", -1);
   DN_ASSERT_RETURN (ioevs, "ioevs is NULL.\n", -1);
@@ -358,6 +363,7 @@ int
 DN_WaitEvent (const int epfd, int * const fds, struct epoll_event * const epevs,
               const int evno, const int timeout)
 {
+
   DN_LogMode_t mode;
 
   DN_LOGMODE (&mode);
@@ -386,6 +392,7 @@ DN_DispatchEvent (const int epfd, const int fds, const int maxev,
                   DN_IOEvent_t * const ioevs)
 {
   DN_IOEvent_t *ioev;
+  DN_IOEventHandlerArgs_t args;
   DN_LogMode_t mode;
   int ret;
   int index;
@@ -408,15 +415,19 @@ DN_DispatchEvent (const int epfd, const int fds, const int maxev,
            || ((ioev->events & EPOLLOUT) && (epevs[index].events & EPOLLOUT)))
 
         {
-          if (-1 == (ret = ioev->handler (epfd, ioev->fd, epevs[index].events,
-                                          ioev, ioevs)))
+          args.epfd = epfd;
+          args.fd = ioev->fd;
+          args.events = epevs[index].events;
+          args.ioev = ioev;
+          args.arg = (void *)ioevs;
+          if (-1 == (ret = ioev->handler (args)))
             {
-              /* FIXME: Determine what to do here */
+              /* XXX: Determine what to do here */
             }
         }
     }
 
-  /* FIXME: Determine what do return { */
+  /* XXX: Determine what do return { */
   return 1 ? 1 : ret;
   /* } */
 }

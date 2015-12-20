@@ -39,10 +39,10 @@ print hr;
 if ($CGI::VERSION >= 4.08) {
   showParam;
 } else {
-  print 'Your CGI.pm is too old to work, visit',
+  print 'Your CGI.pm is too old to work, visit ',
         a ({ -href=>'https://metacpan.org/pod/distribution/CGI/lib/CGI.pod' },
-           ' CPAN '),
-        'to get a new version.';
+           'CPAN'),
+        ' to get a new version.';
 }
 
 print hr;

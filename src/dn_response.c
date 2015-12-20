@@ -100,10 +100,13 @@ DN_FinishHttp (const int epfd, DN_IOEvent_t * const ioev)
 
   DN_LOGMODE (&mode);
 
+  DN_ASSERT_RETURN (epfd > -1, "epfd is illegal.\n", -1);
+  DN_ASSERT_RETURN (ioev, "ioev is NULL.\n", -1);
+
   if (-1 == DN_DelEvent (epfd, ioev))
     {
       DN_LOG (mode, MSG_E, "DN_DelEvent failed.\n");
-      /* FIXME: Determine what to do here.
+      /* XXX: Determine what to do here.
        * If DN_DestoryDevent really should to invoke below ? */
     }
 
@@ -193,22 +196,25 @@ DN_ResponsePage (const int fd, const DN_ResponseType_t type)
  * Send response
  * ========================================================================== */
 int
-DN_SendResponse (const int epfd, const int fd, const int events,
-                 /* This should covert to DN_IOEvent_t { */
-                 void * const ioev,
-                 /* } */
-                 /* This is useless current { */
-                 void * const arg)
-                 /* } */
+DN_SendResponse (const DN_IOEventHandlerArgs_t args)
 {
+  DN_IOEvent_t *ev;
+  DN_ResponseType_t action;
   DN_LogMode_t mode;
+  int epfd, fd;
   int ret;
-  DN_IOEvent_t * const ev = (DN_IOEvent_t * const)ioev;
-  const DN_ResponseType_t action = ev->info.type;
 
   DN_LOGMODE (&mode);
 
+  ev = args.ioev;
+  epfd = args.epfd;
+  fd = args.fd;
+
   DN_ASSERT_RETURN (ev, "ev is NULL.\n", -1);
+  DN_ASSERT_RETURN (epfd > -1, "epfd is illegal.\n", -1);
+  DN_ASSERT_RETURN (fd > -1, "fd is illegal.\n", -1);
+
+  action = ev->info.type;
 
   switch (action)
     {

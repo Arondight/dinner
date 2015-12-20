@@ -19,7 +19,7 @@
 #ifndef __DN_CONFIG_H__
 #define __DN_CONFIG_H__
 
-#define DN_VERSION "0.01"
+#define DN_VERSION "0.02"
 #define DN_DEBUG (1)
 
 /* Never modify this { */

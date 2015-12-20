@@ -51,9 +51,16 @@ typedef enum DN_IOEventStatus
 
 typedef struct DN_IOEvent DN_IOEvent_t;
 
-typedef int (*DN_IOEventHandler)
-              (const int epfd, const int fd, const int event,
-               DN_IOEvent_t * const ioev, void * const arg);
+typedef struct DN_IOEventHandlerArgs
+{
+  int epfd;
+  int fd;
+  int events;
+  DN_IOEvent_t *ioev;
+  void *arg;
+} DN_IOEventHandlerArgs_t;
+
+typedef int (*DN_IOEventHandler) (const DN_IOEventHandlerArgs_t args);
 
 typedef struct DN_IOBuff
 {
@@ -90,9 +97,8 @@ int DN_DelEvent (const int epfd, DN_IOEvent_t * const ioev);
 /* Ddelete all events */
 int DN_DelAllEvent (const int epfd, DN_IOEvent_t * const ioev);
 /* Accept an event */
-int DN_AcceptEvent (const int epfd, const int fd, const int events,
-                    DN_IOEvent_t * const ioev, DN_IOEvent_t * const ioevs);
-/* Wait for coming event */
+int DN_AcceptEvent (const DN_IOEventHandlerArgs_t args);
+/* Wait for coming events */
 int DN_WaitEvent (const int epfd, int * const fds,
                   struct epoll_event * const epevs,
                   const int evno, const int timeout);

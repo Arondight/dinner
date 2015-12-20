@@ -123,11 +123,13 @@ typedef struct DN_ResponseInfo
   void *arg;   /* For extra data */
 } DN_ResponseInfo_t;
 
+typedef struct DN_IOEventHandlerArgs DN_IOEventHandlerArgs_t;
+typedef struct DN_IOEvent DN_IOEvent_t;
+
 /* Send 404 response */
 int DN_ResponsePage (const int fd, const DN_ResponseType_t type);
 /* Send response */
-int DN_SendResponse (const int epfd, const int fd, const int events,
-                     void * const ioev, void * const arg);
+int DN_SendResponse (const DN_IOEventHandlerArgs_t args);
 
 #endif
 

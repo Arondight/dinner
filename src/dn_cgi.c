@@ -59,7 +59,7 @@ DN_ExecCGI (const int fd, DN_CGIInfo_t * const info, DN_IOEvent_t * const ioev)
 
   DN_LOGMODE (&mode);
 
-  DN_ASSERT_RETURN (fd > 0, "fd is illegal.\n", -1);
+  DN_ASSERT_RETURN (fd > -1, "fd is illegal.\n", -1);
   DN_ASSERT_RETURN (info, "info is NULL.\n", -1);
   DN_ASSERT_RETURN (ioev, "ioev is NULL.\n", -1);
   DN_ASSERT_RETURN (info->path, "info->path is NULL.\n", -1);

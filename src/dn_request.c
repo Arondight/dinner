@@ -68,19 +68,17 @@ DN_DiscardRequest (const int fd)
  * Return 0 if can not get whole HTTP head.
  * ========================================================================== */
 int
-DN_AcceptRequest (const int epfd, const int fd, const int events,
-                  DN_IOEvent_t * const ioev,
-                  /* arg is useless current { */
-                  void const * arg)
-                  /* } */
+DN_AcceptRequest (const DN_IOEventHandlerArgs_t args)
 {
   char request[DN_DEFAULT_MAX_REQUEST_LEN];
   char url[DN_DEFAULT_BUFFER_LEN];
   char path[MAXPATHLEN];
-  DN_RequestType_t type;
+  DN_IOEvent_t *ioev;
   DN_CGIInfo_t *info;
+  DN_RequestType_t type;
   DN_LogMode_t mode;
   struct stat status;
+  int epfd, fd;
   int cgi;
   int buffLen, urlLen, pathLen;
   int requestLen, urlPos;
@@ -88,7 +86,13 @@ DN_AcceptRequest (const int epfd, const int fd, const int events,
 
   DN_LOGMODE (&mode);
 
+  ioev = args.ioev;
+  epfd = args.epfd;
+  fd = args.fd;
+
   DN_ASSERT_RETURN (ioev, "ioev is NULL.\n", -1);
+  DN_ASSERT_RETURN (epfd > -1, "epfd is illegal.\n", -1);
+  DN_ASSERT_RETURN (fd > -1, "fd is illegal.\n", -1);
 
   while (1)
     {
@@ -99,9 +103,9 @@ DN_AcceptRequest (const int epfd, const int fd, const int events,
         }
 
       /* Continue reading untill we read whole HTTP request head.
-       * It is ok here, before invoke DN_ReadBuff, ioev->buff.in.stat.begin
-       * is always 0, so that ioev->buff.in.stat.end is buffer size */
-      if (memmem (ioev->buff.in.buff, ioev->buff.in.stat.end,
+       * It is ok here, before invoke DN_ReadBuff, begin is always 0 */
+      if (memmem (DN_BUFFER_BEGIN_ADDR (ioev->buff.in),
+                  DN_BUFFER_DATA_SIZE (ioev->buff.in),
                   DN_HTTP_HEADER_END_MARK, DN_HTTP_HEADER_END_MARK_LEN))
         {
           break;
@@ -114,11 +118,11 @@ DN_AcceptRequest (const int epfd, const int fd, const int events,
         }
     }
 
-  buffLen = ioev->buff.in.stat.end;
+  buffLen = DN_BUFFER_END_POS (ioev->buff.in);
 
   /* Get request method */
   memset (request, 0, sizeof (request));
-  for (requestLen = ioev->buff.in.stat.begin;
+  for (requestLen = DN_BUFFER_BEGIN_POS (ioev->buff.in);
        !isspace (ioev->buff.in.buff[requestLen]) && requestLen < buffLen;
        ++requestLen)
     {
@@ -131,13 +135,13 @@ DN_AcceptRequest (const int epfd, const int fd, const int events,
     }
 
   /* Strip space after request method */
-  for (urlLen = ioev->buff.in.stat.begin;
+  for (urlLen = DN_BUFFER_BEGIN_POS (ioev->buff.in);
        isspace (ioev->buff.in.buff[urlLen]) && urlLen < buffLen;
       ++urlLen)
     {
       /* Do noting */
     }
-  urlLen -= ioev->buff.in.stat.begin;
+  urlLen -= DN_BUFFER_BEGIN_POS (ioev->buff.in);
   if (-1 == DN_ReadBuff (&ioev->buff.in, url, &urlLen))
     {
       DN_LOG (mode, MSG_E, "DN_ReadBuff failed.\n");
@@ -146,13 +150,13 @@ DN_AcceptRequest (const int epfd, const int fd, const int events,
 
   /* Get request url */
   memset (url, 0, sizeof (url));
-  for (urlLen = ioev->buff.in.stat.begin;
+  for (urlLen = DN_BUFFER_BEGIN_POS (ioev->buff.in);
        !isspace (ioev->buff.in.buff[urlLen]) && urlLen < buffLen;
        ++urlLen)
     {
       /* Do nothing */
     }
-  urlLen -= ioev->buff.in.stat.begin;
+  urlLen -= DN_BUFFER_BEGIN_POS (ioev->buff.in);
   if (-1 == DN_ReadBuff (&ioev->buff.in, url, &urlLen))
     {
       DN_LOG (mode, MSG_E, "DN_ReadBuff failed.\n");
