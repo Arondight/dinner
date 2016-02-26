@@ -1,5 +1,5 @@
 /* ========================================================================== *
- * Copyright (c) 2015 秦凡东(Qin Fandong)
+ * Copyright (c) 2015-2016 秦凡东(Qin Fandong)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -325,7 +325,7 @@ DN_AcceptEvent (const DN_IOEventHandlerArgs_t args)
         }
     }
 
-  if (DN_MAX_EVENTS == index)
+  if (DN_MAX_EVENTS <= index)
     {
       DN_LOG (mode, MSG_E, "connections limit (%d) reached.\n", DN_MAX_EVENTS);
       return 0;

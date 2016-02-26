@@ -1,5 +1,5 @@
 /* ========================================================================== *
- * Copyright (c) 2015 秦凡东(Qin Fandong)
+ * Copyright (c) 2015-2016 秦凡东(Qin Fandong)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@
 
 /* Default content type */
 #define DN_DEFAULT_CONTENT_TYPE \
-  "Content-Type: text/html\r\n"
+  "application/x-www-form-urlencoded"
 
 /* Default CSS */
 #define DN_DEFAULT_HTML_CSS  \

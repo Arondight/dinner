@@ -1,5 +1,5 @@
 /* ========================================================================== *
- * Copyright (c) 2015 秦凡东(Qin Fandong)
+ * Copyright (c) 2015-2016 秦凡东(Qin Fandong)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,6 +64,8 @@ DN_SendFile (const int fd, const char * const path, DN_IOEvent_t * const ioev)
       DN_LOG (mode, MSG_E, "fopen failed: %s.\n", strerror (errno));
       return -1;
     }
+
+  DN_LOG (mode, MSG_I, "serve file \"%s\".\n", path);
 
   /* Then send context of file */
   again = 1;

@@ -1,5 +1,5 @@
 /* ========================================================================== *
- * Copyright (c) 2015 秦凡东 (Qin Fandong)
+ * Copyright (c) 2015-2016 秦凡东 (Qin Fandong)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 #ifndef __DN_CONFIG_H__
 #define __DN_CONFIG_H__
 
-#define DN_VERSION "0.02"
+#define DN_VERSION "0.03"
 #define DN_DEBUG (1)
 
 /* Never modify this { */
@@ -28,7 +28,7 @@
 #define DN_HTTP_HEADER_END_MARK_LEN (4)
 #define DN_DEFAULT_WEBROOT ("htdocs/")
 #define DN_DEFAULT_PORT (8080)
-#define DN_DEFAULT_MAX_EVENTS (1 << 8)
+#define DN_DEFAULT_MAX_EVENTS (1 << 10)
 #define DN_DEFAULT_BUFFER_LEN ((1 << 14) - 1)
 #define DN_DEFAULT_MAX_REQUEST_LEN (1 << 4)
 #define DN_DEFAULT_WAITEVENT_TIMEOUT (1000)

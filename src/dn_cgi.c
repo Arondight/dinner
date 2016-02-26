@@ -1,5 +1,5 @@
 /* ========================================================================== *
- * Copyright (c) 2015 秦凡东(Qin Fandong)
+ * Copyright (c) 2015-2016 秦凡东(Qin Fandong)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -164,6 +164,8 @@ DN_ExecCGI (const int fd, DN_CGIInfo_t * const info, DN_IOEvent_t * const ioev)
     }
 
   ret = 1;
+
+  DN_LOG (mode, MSG_I, "run cgi \"%s\".\n", info->path);
 
   if ((pid = vfork ()) < 0)
     {
