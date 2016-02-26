@@ -136,6 +136,8 @@ sigtermHandler (const int signo, DN_IOEvent_t * const ioevs)
   DN_LOG (mode, MSG_I, "dinner is stoped %s errors.\n",
                         error ? "with" : "without");
 
+  DN_LOG (mode, MSG_E, "bye.\n");
+
   exit (error ? 1 : 0);
 }
 
@@ -492,7 +494,8 @@ main (const int argc, const char * const * argv)
       exit (1);
     }
 
-  DN_LOG (mode, MSG_I, "dinner start on port %d with fd %d.\n", port, listenfd);
+  DN_LOG (mode, MSG_I, "dinner is running on http://127.0.0.1:%d/.\n", port);
+  DN_LOG (mode, MSG_I, "listenning fd %d.\n", listenfd);
 
   if (-1 == eventloop (listenfd))
     {
