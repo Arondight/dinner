@@ -53,13 +53,13 @@ usage (void)
   int line;
   const char * const content[] =
     {
-      "This is dinner, version "DN_VERSION" .",
+      "This is dinner, version "DN_VERSION".",
       "",
       "Usage:",
-      "  --port, -p\tset port",
-      "  --workdir, -r\tset work directory",
-      "  --daemon, -d\twork as daemon",
-      "  --help, -h\tshow this help",
+      "  --port, -p\t\tset port",
+      "  --workdir, -r\t\tset work directory",
+      "  --daemon, -d\t\twork as daemon",
+      "  --help, -h\t\tshow this help",
       NULL  /* Last item must be NULL */
     };
 
@@ -438,6 +438,9 @@ main (const int argc, const char * const * argv)
           break;
 
         case 'h':
+          /* Fall throught */
+
+        default:
           if (-1 == usage ())
             {
               DN_LOG (mode, MSG_E, "usage failed.\n");
