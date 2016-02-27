@@ -34,11 +34,11 @@ int
 DN_SendFile (const int fd, const char * const path, DN_IOEvent_t * const ioev)
 {
   FILE *fh;
-  char cache[DN_DEFAULT_BUFFER_LEN];
+  char cache[DN_DEFAULT_BUFFER_LEN / 2];
   DN_LogMode_t mode;
   int len, writeLen;
-  int ret;
   int again;
+  int ret;
 
   DN_LOGMODE (&mode);
 
@@ -67,11 +67,14 @@ DN_SendFile (const int fd, const char * const path, DN_IOEvent_t * const ioev)
 
   DN_LOG (mode, MSG_I, "serve file \"%s\".\n", path);
 
-  /* Then send context of file */
+  ioev->buff.out.stat.end = 0;
   again = 1;
-  do
+
+  while (again)
     {
-      if ((len = fread (cache, 1, sizeof (cache), fh)) < sizeof (cache))
+      /* Then send context of file */
+      if ((len = fread (cache, sizeof (char), sizeof (cache), fh))
+            < sizeof (cache))
         {
           again = 0;
         }
@@ -104,7 +107,6 @@ DN_SendFile (const int fd, const char * const path, DN_IOEvent_t * const ioev)
             }
         }
     }
-  while (again);
 
   ret = 1;
 

@@ -28,15 +28,6 @@
 #include "dn_assert.h"
 
 /* ========================================================================== *
- * I/O type for buffer, this is private
- * ========================================================================== */
-typedef enum DN_IOType
-{
-  DN_SOCK2BUFF = 1,
-  DN_BUFF2SOCK,
-} DN_IOType_t;
-
-/* ========================================================================== *
  * Make fd no blocking
  * ========================================================================== */
 int
@@ -66,15 +57,14 @@ DN_NoBlock (const int fd)
 }
 
 /* ========================================================================== *
- * I/O on event buffer, this is private
+ * Read data from socket buffer to event (in) buffer
  * ========================================================================== */
 int
-DN_BuffIO (DN_IOEvent_t * const ioev, const int fd, const int size,
-           const DN_IOType_t type)
+DN_Sock2Buff (DN_IOEvent_t * const ioev, const int fd, const int size)
 {
   DN_LogMode_t mode;
   char *cache;
-  int len, dataLen;
+  int len, dataLen, sizeRemain;
   int again;
   int ret;
 
@@ -90,37 +80,14 @@ DN_BuffIO (DN_IOEvent_t * const ioev, const int fd, const int size,
       abort ();
     }
 
+  again = 1;
+  sizeRemain = size;
+
   do
     {
-      if (DN_SOCK2BUFF == type)
-        {
-          len = recv (fd, cache, size, 0);
-        }
-      else if (DN_BUFF2SOCK == type)
-        {
-          dataLen = size;
+      len = recv (fd, cache, sizeRemain, 0);
 
-          if (-1 == DN_ReadBuff (&ioev->buff.out, cache, &dataLen))
-            {
-              DN_LOG (mode, MSG_E, "DN_ReadBuff failed.\n");
-              ret = -1;
-              goto END;
-            }
-
-          if (0 == dataLen)
-            {
-              ret = 1;
-              goto END;
-            }
-
-          len = send (fd, cache, size, 0);
-        }
-      else
-        {
-          DN_LOG (mode, MSG_E, "type is illegal.\n");
-          ret = -1;
-          goto END;
-        }
+      sizeRemain -= len;
 
       if (-1 == len)
         {
@@ -128,19 +95,18 @@ DN_BuffIO (DN_IOEvent_t * const ioev, const int fd, const int size,
             {
               break;
             }
-
-          DN_LOG (mode, MSG_E, "%s failed: %s.\n",
-                                DN_SOCK2BUFF == type ? "recv" : "send",
-                                strerror (errno));
+          DN_LOG (mode, MSG_E, "recv failed: %s.\n", strerror (errno));
           ret = -1;
           goto END;
         }
-      else if (0 == len)
+
+      if (0 == len)
         {
           /* Socket has closed */
           break;
         }
-      else if (len == size)
+
+      if (sizeRemain > 0)
         {
           again = 1;
         }
@@ -151,22 +117,20 @@ DN_BuffIO (DN_IOEvent_t * const ioev, const int fd, const int size,
 
       dataLen = len;
 
-      if (DN_SOCK2BUFF == type)
+      if (-1 == DN_WriteBuff (&ioev->buff.in, cache, &dataLen))
         {
-          if (-1 == DN_WriteBuff (&ioev->buff.in, cache, &dataLen))
-            {
-              DN_LOG (mode, MSG_E, "DN_WriteBuff failed.\n");
-              ret = -1;
-              goto END;
-            }
-          if (dataLen < len)
-            {
-              DN_LOG (mode, MSG_E, "DN_WriteBuff: no more space to write.\n");
-              /* Read for socket buffer has finished,
-               * but event buffer has no more space */
-              ret = 0;
-              goto END;
-            }
+          DN_LOG (mode, MSG_E, "DN_WriteBuff failed.\n");
+          ret = -1;
+          goto END;
+        }
+
+      if (dataLen < len)
+        {
+          DN_LOG (mode, MSG_E, "DN_WriteBuff: no more space to write.\n");
+          /* Read for socket buffer has finished,
+           * but event buffer has no more space */
+          ret = -1;
+          goto END;
         }
     }
   while (again);
@@ -184,35 +148,15 @@ END:
 }
 
 /* ========================================================================== *
- * Read data from socket buffer to event (in) buffer
- * ========================================================================== */
-int
-DN_Sock2Buff (DN_IOEvent_t * const ioev, const int fd, const int size)
-{
-  DN_LogMode_t mode;
-
-  DN_LOGMODE (&mode);
-
-  DN_ASSERT_RETURN (ioev, "ioev is NULL.\n", -1);
-  DN_ASSERT_RETURN (fd > -1, "fd is illegal.\n", -1);
-  DN_ASSERT_RETURN (size > 0, "size is illegal.\n", -1);
-
-  if (-1 == DN_BuffIO (ioev, fd, size, DN_SOCK2BUFF))
-    {
-      DN_LOG (mode, MSG_E, "DN_IOBuff failed.\n");
-      return -1;
-    }
-
-  return 0;
-}
-
-/* ========================================================================== *
  * Write data from event (out) buffer to socket buffer
  * ========================================================================== */
 int
 DN_Buff2Sock (DN_IOEvent_t * const ioev, const int fd, const int size)
 {
+  char *cache;
   DN_LogMode_t mode;
+  int len, dataLen, sizeRemain;
+  int ret;
 
   DN_LOGMODE (&mode);
 
@@ -220,12 +164,72 @@ DN_Buff2Sock (DN_IOEvent_t * const ioev, const int fd, const int size)
   DN_ASSERT_RETURN (fd > -1, "fd is illegal.\n", -1);
   DN_ASSERT_RETURN (size > 0, "size is illegal.\n", -1);
 
-  if (-1 == DN_BuffIO (ioev, fd, size, DN_BUFF2SOCK))
+  if (!(cache = (char *)malloc (size)))
     {
-      DN_LOG (mode, MSG_E, "DN_IOBuff failed.\n");
-      return -1;
+      DN_LOG (mode, MSG_E, "malloc failed %s,\n", strerror (errno));
+      abort ();
     }
 
-  return 0;
+  dataLen = size;
+
+  if (-1 == DN_ReadBuff (&ioev->buff.out, cache, &dataLen))
+    {
+      DN_LOG (mode, MSG_E, "DN_ReadBuff failed.\n");
+      ret = -1;
+      goto END;
+    }
+
+  if (0 == dataLen)
+    {
+      ret = 1;
+      goto END;
+    }
+
+  sizeRemain = dataLen;
+
+  while (1)
+    {
+      len = send (fd, cache, sizeRemain, 0);
+
+      if (-1 == len)
+        {
+          if (EWOULDBLOCK == errno || EAGAIN == errno || EINTR == errno)
+            {
+              continue;
+            }
+          DN_LOG (mode, MSG_E, "send failed: %s.\n", strerror (errno));
+          ret = -1;
+          goto END;
+        }
+
+      if (0 == len)
+        {
+          /* Socket has closed */
+          ret = -1;
+          goto END;
+        }
+
+      sizeRemain -= len;
+
+      if (sizeRemain > 0)
+        {
+          continue;
+        }
+      else
+        {
+          break;
+        }
+    }
+
+  ret = !sizeRemain ? 0 : 1;
+
+END:
+  if (cache)
+    {
+      free (cache);
+      cache = NULL;
+    }
+
+  return ret;
 }
 

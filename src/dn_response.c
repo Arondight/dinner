@@ -230,7 +230,7 @@ DN_SendResponse (const DN_IOEventHandlerArgs_t args)
     case DN_SENDFILE:
       if (-1 == DN_SendFile (fd, (char *)ev->info.arg, ev))
         {
-          DN_LOG (mode, MSG_E, "DN_SendFileHeader failed.\n");
+          DN_LOG (mode, MSG_E, "DN_SendFile failed.\n");
           ret = -1;
           goto FINISH;
         }
