@@ -153,7 +153,7 @@ END:
 int
 DN_Buff2Sock (DN_IOEvent_t * const ioev, const int fd, const int size)
 {
-  char *cache;
+  char *cache, *current;
   DN_LogMode_t mode;
   int len, dataLen, sizeRemain;
   int ret;
@@ -187,9 +187,11 @@ DN_Buff2Sock (DN_IOEvent_t * const ioev, const int fd, const int size)
 
   sizeRemain = dataLen;
 
+  current = cache;
+
   while (1)
     {
-      len = send (fd, cache, sizeRemain, 0);
+      len = send (fd, current, sizeRemain, 0);
 
       if (-1 == len)
         {
@@ -210,6 +212,7 @@ DN_Buff2Sock (DN_IOEvent_t * const ioev, const int fd, const int size)
         }
 
       sizeRemain -= len;
+      current += len;
 
       if (sizeRemain > 0)
         {
