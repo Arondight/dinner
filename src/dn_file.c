@@ -34,7 +34,7 @@ int
 DN_SendFile (const int fd, const char * const path, DN_IOEvent_t * const ioev)
 {
   FILE *fh;
-  char cache[DN_DEFAULT_BUFFER_LEN / 2];
+  char cache[DN_DEFAULT_BUFFER_LEN];
   DN_LogMode_t mode;
   int len, writeLen;
   int again;
